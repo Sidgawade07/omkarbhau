@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #ff9800;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --warning-color: #ffc107;
+            --background-light: #f4f7f6;
+            --text-dark: #333;
+            --text-light: #fff;
+            --card-bg: #fff;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        /* Layout */
+        .page-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sidebar .nav-list {
+            list-style: none;
+        }
+
+        .sidebar .nav-item {
+            margin-bottom: 15px;
+        }
+
+        .sidebar .nav-link {
+            display: block;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar .nav-link span {
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .btn-logout {
+            margin-top: auto;
+            padding: 12px 15px;
+            background-color: var(--danger-color);
+            color: var(--text-light);
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .sidebar .btn-logout:hover {
+            background-color: #d32f2f;
+            transform: scale(1.03);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .main-header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .card .metric {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .chart-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* Tables Section */
+        .tests-section {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+
+        .tests-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .test-table-container {
+            overflow-x: auto;
+        }
+        
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .test-table th, .test-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .test-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .test-table tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .test-table .status.upcoming {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .test-table .status.completed {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .test-table .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .test-table .action-buttons a {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .test-table .action-buttons a:hover {
+            color: var(--secondary-color);
+        }
+
+        .btn-start-test {
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            border-radius: 50px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-start-test:hover {
+            background-color: #e65100;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                padding: 15px;
+                align-items: center;
+            }
+            .sidebar h2 {
+                display: none;
+            }
+            .sidebar .nav-link span, .sidebar .btn-logout span {
+                display: none;
+            }
+            .sidebar .nav-link i {
+                margin: 0;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .chart-card {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                height: auto;
+            }
+            .sidebar h2 {
+                display: block;
+                margin: 0;
+                font-size: 1.2rem;
+            }
+            .sidebar .nav-list {
+                display: flex;
+                flex-direction: row;
+            }
+            .sidebar .nav-item {
+                margin-bottom: 0;
+            }
+            .sidebar .nav-link {
+                padding: 10px;
+            }
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h2>Test Portal</h2>
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'tests' %}" class="nav-link">
+                            <i class="fas fa-list-check"></i><span>My Tests</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-user-graduate"></i><span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <a href="#" class="btn-logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <h1>Welcome, John Doe!</h1>
+            </header>
+
+            <!-- Summary Cards and Chart Section -->
+            <section class="dashboard-grid">
+                <div class="card">
+                    <h3>Total Enrolled Tests</h3>
+                    <div class="metric">5</div>
+                </div>
+                <div class="card">
+                    <h3>Latest Score</h3>
+                    <div class="metric">88%</div>
+                </div>
+                <div class="chart-card" style="grid-column: span 2;">
+                    <h3>My Performance Over Time</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upcoming Tests Section -->
+            <section class="tests-section">
+                <h2>Upcoming Tests</h2>
+                <div class="test-table-container">
+                    <table class="test-table">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Data Structures Midterm</td>
+                                <td>2025-08-20</td>
+                                <td>
+                                    <button class="btn-start-test">Start Test</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Web Dev Fundamentals</td>
+                                <td>2025-09-01</td>
+                                <td>
+                                    <button class="btn-start-test">Start Test</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Past Results Section -->
+            <section class="tests-section">
+                <h2>Past Results</h2>
+                <div class="test-table-container">
+                    <table class="test-table">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Score</th>
+                                <th>Date Taken</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Introduction to Python</td>
+                                <td>88%</td>
+                                <td>2025-08-01</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="#" title="View Report"><i class="fas fa-file-alt"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Algorithms Quiz</td>
+                                <td>95%</td>
+                                <td>2025-07-25</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="#" title="View Report"><i class="fas fa-file-alt"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample data for the line chart
+            const performanceData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                scores: [75, 78, 85, 82, 88, 95]
+            };
+
+            // Performance Over Time Line Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(performanceCtx, {
+                type: 'line',
+                data: {
+                    labels: performanceData.labels,
+                    datasets: [{
+                        label: 'My Average Score (%)',
+                        data: performanceData.scores,
+                        borderColor: 'var(--secondary-color)',
+                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'var(--secondary-color)',
+                        pointBorderColor: 'var(--card-bg)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+            
+            // Functionality for "Start Test" buttons (for demonstration)
+            document.querySelectorAll('.btn-start-test').forEach(button => {
+                button.addEventListener('click', () => {
+                    alert('You clicked to start a test. This would navigate you to the test page.');
+                });
+            });
+
+            // Functionality for "View Report" buttons (for demonstration)
+            document.querySelectorAll('.fa-file-alt').forEach(icon => {
+                icon.parentElement.addEventListener('click', () => {
+                    alert('You clicked to view the test report. This would show a detailed breakdown of your results.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
